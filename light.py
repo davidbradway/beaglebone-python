@@ -29,20 +29,22 @@ __license__ = "Apache v2.0"
 
 
 def main():
-   import Adafruit_BBIO.ADC as ADC
-   import time
-   
-   sensor_pin = 'P9_40'
-   
-   ADC.setup()
-   
-   print('Reading\t\tVolts')
-   
-   while True:
-       reading = ADC.read(sensor_pin)
-       volts = reading * 1.800
-       print('%f\t%f' % (reading, volts))
-       time.sleep(1)
+    import Adafruit_BBIO.ADC as ADC
+    import time
+    import datetime
+    
+    sensor_pin = 'P9_40'
+    
+    ADC.setup()
+    
+    print('Time\tReading\t\tVolts')
+    
+    while True:
+        now = datetime.datetime.now()
+        reading = ADC.read(sensor_pin)
+        volts = reading * 1.800
+        print('%s\t%f\t%f' % (now.second, reading, volts))
+        time.sleep(1)
 
 if __name__ == "__main__":
     main()
