@@ -53,7 +53,7 @@ def main():
         print('%s\t%f\t%f' % (now.second, reading, volts))
         plt.scatter(i, volts)
         plt.draw()
-        time.sleep(0.05)
+        time.sleep(0.1)
         i=i+1    
 
 if __name__ == "__main__":
