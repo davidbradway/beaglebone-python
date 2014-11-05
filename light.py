@@ -32,19 +32,29 @@ def main():
     import Adafruit_BBIO.ADC as ADC
     import time
     import datetime
-    
+    import numpy as np
+    import matplotlib.pyplot as plt
+
     sensor_pin = 'P9_40'
     
     ADC.setup()
-    
+
+    #plt.axis([0, 1000, 0, 1])
+    plt.ion()
+    plt.show()
+
     print('Time\tReading\t\tVolts')
-    
+
+    i=0    
     while True:
         now = datetime.datetime.now()
         reading = ADC.read(sensor_pin)
         volts = reading * 1.800
         print('%s\t%f\t%f' % (now.second, reading, volts))
-        time.sleep(1)
+        plt.scatter(i, volts)
+        plt.draw()
+        time.sleep(0.05)
+        i=i+1    
 
 if __name__ == "__main__":
     main()
