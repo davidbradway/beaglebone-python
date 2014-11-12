@@ -34,26 +34,86 @@ def main():
     import datetime
     import numpy as np
     import matplotlib.pyplot as plt
-
-    sensor_pin = 'P9_40'
+    import collections
+    import twitter
     
+    # Set Flags
+    plotit = 0
+    debug = 0
+    printit = 1
+    tweetit = 1
+    
+    # Set ADC
+    sensor_pin = 'P9_40'
     ADC.setup()
 
-    #plt.axis([0, 1000, 0, 1])
-    plt.ion()
-    plt.show()
+    # Set data collection buffer
+    buflength = 15
+    circbuf=collections.deque(maxlen=buflength)
+    
+    # Plot the raw data
+    if plotit:
+        #plt.axis([0, 1000, -.1, 1.7])
+        plt.ion()
+        plt.show()
+    
+    # Print table of data
+    if debug:
+        print('Time\tVolts\t\tMedian\t\tVariance\t\tStable\t\t\tnewstateflag')
+    
+    if tweetit:
+        api = twitter.Api(consumer_key='',
+        consumer_secret='',
+        access_token_key='',
+        access_token_secret='')
+        
+        if debug:
+            print api.VerifyCredentials()
+    
+    i = 0
+    med = 0
+    stable = 0
+    variance = 0
+    newstateflag = False
 
-    print('Time\tReading\t\tVolts')
-
-    i=0    
     while True:
         now = datetime.datetime.now()
         reading = ADC.read(sensor_pin)
         volts = reading * 1.800
-        print('%s\t%f\t%f' % (now.second, reading, volts))
-        plt.scatter(i, volts)
-        plt.draw()
-        time.sleep(0.1)
+        circbuf.append(volts)
+        med = np.median(circbuf)
+        variance = np.var(circbuf)
+        
+        if variance < 0.001:
+            stable = med
+            newstateflag = False
+        
+        if variance > 0.01 and newstateflag == False:
+            if med > stable:
+                update = 'Lights on  %s' % (str(now))
+                if printit:
+                    print(update)
+                if tweetit:
+                    status = api.PostUpdate(update)
+                
+                newstateflag = True
+            elif med < stable:
+                update = 'Lights off %s' % (str(now))
+                if printit:
+                    print(update)
+                if tweetit:
+                    status = api.PostUpdate(update)
+                
+                newstateflag = True
+        
+        if debug:
+            print('%s\t%f\t%f\t%f\t%f\t%f' % (now.second, volts, med, variance, stable, newstateflag))
+        
+        if plotit:
+            plt.scatter(i, med)
+            plt.draw()
+        
+        time.sleep(.25)
         i=i+1    
 
 if __name__ == "__main__":
