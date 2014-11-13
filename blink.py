@@ -34,10 +34,22 @@ def setup():
     GPIO.setup("P9_11", GPIO.OUT)
 
 def loop():
-    GPIO.output("P9_11", GPIO.HIGH)
+    on()
     time.sleep(10.0)
-    GPIO.output("P9_11", GPIO.LOW)
+    off()
     time.sleep(0.5)
+
+def on():
+    GPIO.output("P9_11", GPIO.HIGH)
+
+def off():
+    GPIO.output("P9_11", GPIO.LOW)
+
+def start():
+    on()
+
+def stop():
+    off()
 
 if __name__ == "__main__":
     setup()
